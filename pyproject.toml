@@ -3,22 +3,17 @@ name = "kauma"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-authors = [
-    { name = "Paul Hoerenz", email = "development@hoerenz.com" }
-]
+authors = [{ name = "Paul Hoerenz", email = "development@hoerenz.com" }]
 requires-python = ">=3.12"
-dependencies = [
-    "cryptography>=50.0.2",
-]
+dependencies = ["cryptography>=50.0.2"]
 
 [project.scripts]
 kauma = "kauma:main"
+oracle-attack = "kauma.training_exam:main"
 
 [build-system]
 requires = ["uv_build>=0.12.21,<0.13.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
-dev = [
-    "pytest>=9.1.1",
-]
+dev = ["pytest>=9.1.1"]
