@@ -29,3 +29,24 @@ def galois_multiply(
             accumulator ^= irreducable_polynomial
 
     return result
+
+
+def bytes_to_polynomial(data: bytes, mode: Mode) -> int:
+    match mode:
+        case "XEX":
+            return int.from_bytes(data, byteorder="little")
+        case "GCM":
+            value = int.from_bytes(data, byteorder="big")
+            return int(f"{value:0128b}"[::-1], 2)
+        case _:
+            raise ValueError("invalid mode")
+
+
+def polynomial_to_bytes(polynomial: int, mode: Mode) -> bytes:
+    match mode:
+        case "XEX":
+            return polynomial.to_bytes(length=16, byteorder="little")
+        case "GCM":
+            return int(f"{polynomial:0128b}"[::-1], 2).to_bytes(16, byteorder="big")
+        case _:
+            raise ValueError("invalid mode")
