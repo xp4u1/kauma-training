@@ -24,14 +24,26 @@ def encrypt(
     plaintext: bytes, key: bytes, nonce: bytes, associated_data: bytes
 ) -> EncryptedMessage:
     ciphertext = _plain_encrypt(plaintext, key, nonce)
-    auth_key = _encrypt_block(bytes(16), key)
-
-    auth_tag = _xor(
-        _encrypt_block(_y_block(nonce, 1), key),
-        _ghash(auth_key, associated_data, ciphertext),
-    )
+    auth_tag = _calculate_auth_tag(ciphertext, key, nonce, associated_data)
 
     return EncryptedMessage(ciphertext, nonce, associated_data, auth_tag)
+
+
+def decrypt(encrypted_message: EncryptedMessage, key: bytes) -> bytes:
+    plaintext = _plain_decrypt(
+        encrypted_message.ciphertext, key, encrypted_message.nonce
+    )
+    auth_tag = _calculate_auth_tag(
+        encrypted_message.ciphertext,
+        key,
+        encrypted_message.nonce,
+        encrypted_message.associated_data,
+    )
+
+    if encrypted_message.auth_tag != auth_tag:
+        raise ValueError("invalid auth tag")
+
+    return plaintext
 
 
 def _y_block(nonce: bytes, counter: int) -> bytes:
@@ -39,6 +51,17 @@ def _y_block(nonce: bytes, counter: int) -> bytes:
         raise ValueError("invalid nonce length")
 
     return nonce + counter.to_bytes(length=4)
+
+
+def _calculate_auth_tag(
+    ciphertext: bytes, key: bytes, nonce: bytes, associated_data: bytes
+) -> bytes:
+    auth_key = _encrypt_block(bytes(16), key)
+
+    return _xor(
+        _encrypt_block(_y_block(nonce, 1), key),
+        _ghash(auth_key, associated_data, ciphertext),
+    )
 
 
 def _encrypt_block(plaintext: bytes, key: bytes) -> bytes:
@@ -62,6 +85,10 @@ def _plain_encrypt(plaintext: bytes, key: bytes, nonce: bytes) -> bytes:
     )
 
     return _xor(plaintext, key_stream)[: len(plaintext)]
+
+
+def _plain_decrypt(ciphertext: bytes, key: bytes, nonce: bytes) -> bytes:
+    return _plain_encrypt(ciphertext, key, nonce)
 
 
 def _xor(a: bytes, b: bytes) -> bytes:
