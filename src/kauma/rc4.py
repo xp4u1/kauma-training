@@ -1,25 +1,54 @@
-def generate_keystream(key: bytes, length: int) -> bytes:
-    sbox = _generate_sbox(key)
+class RC4:
+    def __init__(self, key: bytes):
+        self.i, self.j = 0, 0
+        self.sbox = list(range(256))
 
-    i, j = 0, 0
-    keystream: list[int] = []
+        self.initialize_cipher(key)
 
-    for _ in range(length):
-        i = (i + 1) % 256
-        j = (j + sbox[i]) % 256
-        sbox[i], sbox[j] = (sbox[j], sbox[i])
-        keybyte = sbox[(sbox[i] + sbox[j]) % 256]
+    def next_keystream_byte(self) -> int:
+        """
+        Generate the next keystream byte from the current state.
+        """
 
-        keystream.append(keybyte)
+        self.i = (self.i + 1) % 256
+        self.j = (self.j + self.sbox[self.i]) % 256
+        self.sbox[self.i], self.sbox[self.j] = (
+            self.sbox[self.j],
+            self.sbox[self.i],
+        )
 
-    return bytes(keystream)
+        return self.sbox[(self.sbox[self.i] + self.sbox[self.j]) % 256]
 
+    def next_keystream(self, length: int) -> bytes:
+        """
+        Generate n bytes of the keystream from the current state.
 
-def _generate_sbox(key: bytes) -> list[int]:
-    j = 0
-    sbox = list(range(256))
-    for i in range(256):
-        j = (j + sbox[i] + key[i % len(key)]) % 256
-        sbox[i], sbox[j] = (sbox[j], sbox[i])
+        Args:
+            length: length of the keystream in bytes
+        """
 
-    return sbox
+        return bytes([self.next_keystream_byte() for _ in range(length)])
+
+    def initialize_cipher(self, key: bytes):
+        """
+        Generate the full sbox and set start values for i and j to
+        generate keystream bytes.
+        """
+
+        self._generate_partial_sbox(key, 256)
+        self.i, self.j = 0, 0
+
+    def _generate_partial_sbox(self, key: bytes, stop_after: int):
+        """
+        Generate (a part of) the sbox. Overrides any existing sbox.
+        """
+
+        self.i, self.j = 0, 0
+        self.sbox = list(range(256))
+
+        for self.i in range(stop_after):
+            self.j = (self.j + self.sbox[self.i] + key[self.i % len(key)]) % 256
+            self.sbox[self.i], self.sbox[self.j] = (
+                self.sbox[self.j],
+                self.sbox[self.i],
+            )
