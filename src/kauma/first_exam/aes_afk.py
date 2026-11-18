@@ -54,7 +54,7 @@ def decrypt(ciphertext: bytes, key: bytes, sector: int) -> bytes:
                 )
             ),
         )
-        plaintext.append(aes128_dec(s, xorblk(raw_chunk, stream)))
+        plaintext.append(xorblk(aes128_dec(s, raw_chunk), stream))
 
     return b"".join(plaintext)
 
