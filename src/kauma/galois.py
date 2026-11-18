@@ -29,6 +29,35 @@ def galois_multiply(
     return result
 
 
+def galois_power(
+    base: int, exponent: int, irreducible_polynomial=IRREDUCIBLE_POLYNOMIAL
+) -> int:
+    result = 1
+
+    while exponent:
+        if exponent & 1:
+            result = galois_multiply(result, base, irreducible_polynomial)
+
+        base = galois_multiply(base, base, irreducible_polynomial)
+        exponent >>= 1
+
+    return result
+
+
+def galois_inverse(a: int, irreducible_polynomial=IRREDUCIBLE_POLYNOMIAL) -> int:
+    if a == 0:
+        raise ValueError("0 has no inverse")
+
+    degree = irreducible_polynomial.bit_length() - 1
+    return galois_power(a, (1 << degree) - 2)
+
+
+def galois_divide(a: int, b: int, irreducible_polynomial=IRREDUCIBLE_POLYNOMIAL) -> int:
+    return galois_multiply(
+        a, galois_inverse(b, irreducible_polynomial), irreducible_polynomial
+    )
+
+
 def bytes_to_polynomial(data: bytes, mode: Mode) -> int:
     match mode:
         case "XEX":
