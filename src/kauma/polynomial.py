@@ -23,6 +23,9 @@ class Polynomial:
         self.coefficients = coefficients
         self.make_normalized()
 
+    def degree(self):
+        return len(self.coefficients) - 1
+
     def make_monic(self) -> None:
         """
         Divide all coefficients by the leading coefficient.
@@ -145,6 +148,9 @@ class Polynomial:
         remainder_polynomial.make_normalized()
 
         return quotient_polynomial, remainder_polynomial
+
+    def __floordiv__(self, other: Polynomial):
+        return divmod(self, other)[0]
 
     @classmethod
     def gcd(cls, a: Polynomial, b: Polynomial):

@@ -328,3 +328,25 @@ def test_sqrt_odd_coefficient_raises():
 
     with pytest.raises(ValueError):
         Polynomial([4, 0, 4, 2]).sqrt()
+
+
+def test_degree():
+    assert Polynomial([5]).degree() == 0
+    assert Polynomial([1, 1]).degree() == 1
+    assert Polynomial([1, 0, 7]).degree() == 2
+    assert Polynomial([3, 0, 0]).degree() == 0
+    assert Polynomial([0]).degree() == 0
+
+
+def test_floordiv():
+    # X^2 + X + 1 = (X + 1) * X + 1
+    assert Polynomial([1, 1, 1]) // Polynomial([1, 1]) == Polynomial([0, 1])
+    assert Polynomial([1, 0, 1]) // Polynomial([1, 1]) == Polynomial([1, 1])
+    assert Polynomial([3]) // Polynomial([0, 1]) == Polynomial([0])
+
+
+def test_floordiv_matches_divmod_quotient():
+    a = Polynomial([5, 7, 0, 9])
+    b = Polynomial([3, 1, 2])
+
+    assert a // b == divmod(a, b)[0]
