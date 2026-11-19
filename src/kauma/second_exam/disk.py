@@ -1,4 +1,4 @@
-from kauma.second_exam.bfk_aes import decrypt_sector, encrypt_sector
+from kauma.second_exam.aes_bfk import decrypt_sector, encrypt_sector
 from kauma.second_exam.helper import VirtualHardDisk
 
 

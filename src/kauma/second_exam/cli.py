@@ -1,6 +1,6 @@
 import sys
 
-from kauma.second_exam.bfk_aes import AuthenticationError
+from kauma.second_exam.aes_bfk import AuthenticationError
 from kauma.second_exam.disk import read_sector, write_sector
 from kauma.second_exam.helper import VirtualHardDisk
 
